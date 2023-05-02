@@ -1,13 +1,11 @@
 # Towards the analysis of coral skeletal density-banding using Deep Learning
 
-## Repository Overview
-
 This repository is an implementation of [Ainsley Rutterford's deep learning analysis of coral cores](https://doi.org/10.1007/s42452-021-04912-x). It has been modified from the original code for the [NOAA AOML Coral Program](https://www.aoml.noaa.gov/coral-reef-ecosystems/). X-ray micro-Computed Tomography (µCT) is increasingly used to record the skeletal growth banding of massive coral. However, the wealth of data generated is time-consuming to analyze and requires expert interpretation to estimate growth rates and colony age. We used a Keras-based Python implementation of the U-Net architecture [(Ronneberger et al. 2015)](https://arxiv.org/abs/1505.04597) as our backbone Convolutional Neural Network (CNN) to reproduce the expert identification of annual density banding. The CNN was trained with µCT images combined with manually-labelled ground truths to learn the topological features in different specimens of massive Porites sp. The CNN successfully predicted the position of low- and high-density boundaries in images not used in training.
 
 ![Example X-ray µCT scan slice](coral.png)
 <sup>An example of an X-ray µCT scan slice with the predicted high- and low-density boundaries superimposed.</sup>
 
-## Repository Components
+## Repository Overview
 
 - [data/train](data/train), [data/test](data/test), and [data/val](data/val) contain the training, testing, and validation samples respectively.
 - [data/splits](data/splits) contains various other train/test splits that can be used for cross-validation once the network is trained.
