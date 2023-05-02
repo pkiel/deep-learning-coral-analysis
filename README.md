@@ -1,15 +1,13 @@
 # Towards the analysis of coral skeletal density-banding using Deep Learning
 
-[Ainsley Rutterford](https://github.com/ainsleyrutterford), [Leonardo. Bertini](https://www.4d-reef.eu/avada-portfolio/leonardo-bertini/), [Erica J. Hendy](http://www.bris.ac.uk/earthsciences/people/erica-hendy/index.html), [Kenneth Johnson](https://www.nhm.ac.uk/our-science/departments-and-staff/staff-directory/kenneth-johnson.html), [Rebecca Summerfield](https://www.researchgate.net/profile/Rebecca_Summerfield), [Tilo Burghardt](http://people.cs.bris.ac.uk/~burghard/)
+## Repository Overview
 
-This repository contains accompanying code for [our note]() submitted to the Coral Reefs journal. X-ray micro-Computed Tomography (µCT) is increasingly used to record the skeletal growth banding of massive coral. However, the wealth of data generated is time-consuming to analyse and requires expert interpretation to estimate growth rates and colony age. We used a Keras-based Python implementation of the U-Net architecture [(Ronneberger et al. 2015)](https://arxiv.org/abs/1505.04597) as our backbone Convolutional Neural Network (CNN) to reproduce the expert identification of annual density banding. The CNN was trained with µCT images combined with manually-labelled ground truths to learn the topological features in different specimens of massive Porites sp. The CNN successfully predicted the position of low- and high-density boundaries in images not used in training.
+This repository is an implementation of [Ainsley Rutterford's deep learning analysis of coral cores](https://doi.org/10.1007/s42452-021-04912-x). It has been modified from the original code for the [NOAA AOML Coral Program](https://www.aoml.noaa.gov/coral-reef-ecosystems/). X-ray micro-Computed Tomography (µCT) is increasingly used to record the skeletal growth banding of massive coral. However, the wealth of data generated is time-consuming to analyze and requires expert interpretation to estimate growth rates and colony age. We used a Keras-based Python implementation of the U-Net architecture [(Ronneberger et al. 2015)](https://arxiv.org/abs/1505.04597) as our backbone Convolutional Neural Network (CNN) to reproduce the expert identification of annual density banding. The CNN was trained with µCT images combined with manually-labelled ground truths to learn the topological features in different specimens of massive Porites sp. The CNN successfully predicted the position of low- and high-density boundaries in images not used in training.
 
-<img src="https://github.com/ainsleyrutterford/deep-learning-coral-analysis/raw/master/coral.png">
+![Example X-ray µCT scan slice](coral.png)
 <sup>An example of an X-ray µCT scan slice with the predicted high- and low-density boundaries superimposed.</sup>
 
-<!-- Once published (hopefully!) how to cite section here. -->
-
-## Repository overview
+## Repository Components
 
 - [data/train](data/train), [data/test](data/test), and [data/val](data/val) contain the training, testing, and validation samples respectively.
 - [data/splits](data/splits) contains various other train/test splits that can be used for cross-validation once the network is trained.
@@ -37,7 +35,7 @@ If you plan on using a GPU to train, the `tensorflow-gpu` corresponding to the `
 
 <sub>Note that this code was only tested with CUDA 10.1 and cuDNN 7.4. In order to use a newer version of CUDA or cuDNN, tensorflow may need to be updated. [This page](https://www.tensorflow.org/install/source#tested_build_configurations) contains a list of the recommended CUDA and cuDNN versions for each tensorflow version (windows users refer to [this page](https://www.tensorflow.org/install/source_windows#tested_build_configurations) instead). In order to check if a GPU is being used while training, the [train.py](train.py) script can be run with the `--verbose` flag.</sub>
 
-## Generating a dataset
+## Generating a Dataset
 
 In order to generate a dataset of smaller patches, the [utils/sliding_window.py](utils/sliding_window.py) script can be used. To see what command line arguments are available, run
 
@@ -83,7 +81,7 @@ $ python test.py --dir data/test/image --tests 56
 
 The resulting predictions are saved in the [test](test) directory.
 
-## Estimating the calcification rate
+## Estimating the Calcification Rate
 
 In order to estimate the calcification rate of a given slice, the boundaries present in the slice must first be calculated using the [predict.py](predict.py) script. To see what command line arguments are available, run
 
