@@ -18,12 +18,17 @@ args = parser.parse_args()
 # If the --verbose argument is not supplied, suppress all of the TensorFlow startup messages.
 if not args.verbose:
     import os
+    import logging
+
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
     import tensorflow as tf
-    tf.logging.set_verbosity(tf.logging.ERROR)
+
+    # tf.logging.set_verbosity(tf.logging.ERROR)
+    logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 import models
 import data
+import os
 from datetime import datetime
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 from keras.optimizers import Adam
@@ -34,7 +39,7 @@ data_gen_args = dict(rotation_range=2,
                      height_shift_range=0.02,
                      shear_range=2,
                      zoom_range=0.02,
-                     brightness_range=[0.9,1.1],
+                     brightness_range=[0.9, 1.1],
                      horizontal_flip=True,
                      vertical_flip=True,
                      fill_mode="nearest")
@@ -42,15 +47,23 @@ data_gen_args = dict(rotation_range=2,
 # Initialise the training and validation data generators.
 # Note that an empty augmentation dict() is provided to the validation generators as no
 # augmentation should be performed whilst evaluating the validation performance.
-train_gen = data.train_generator(args.batch, f"{args.dir}/train", "image","label", data_gen_args, target_size=(args.size, args.size))
-val_gen = data.train_generator(1, f"{args.dir}/val", "image","label", dict(), target_size=(args.size, args.size))
+train_gen = data.train_generator(args.batch, f"{args.dir}/train", "image", "label", data_gen_args,
+                                 target_size=(args.size, args.size))
+val_gen = data.train_generator(1, f"{args.dir}/val", "image", "label", dict(), target_size=(args.size, args.size))
 
 # Format the current time as a string to be used in a TensorBoard log name.
-time = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 
 # Initialise a Keras TensorBoard callback and set the log name to a combination the name
 # specified in the --name argument and the current time.
-tensorboard = TensorBoard(log_dir=f"logs/{args.name}_{time}")
+from pathlib import Path
+logdir = f"logs\{args.name}-{time}"
+training_log_dir_path = Path(logdir)
+training_log_dir = str(training_log_dir_path)
+# tensorboard = TensorBoard(log_dir=training_log_dir)
+
+#code from youtube video
+tensorboard = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 
 # Initialise a Keras EarlyStopping callback and set the stopping criteria to be when the
 # validation loss fails to decrease after 10 epochs.
@@ -62,16 +75,16 @@ checkpoint_name = "checkpoint-{epoch:02d}.hdf5"
 model_checkpoint = ModelCheckpoint(checkpoint_name, monitor="loss", verbose=1, save_best_only=False)
 
 model = models.unet2D(size=args.size, ablated=args.ablated)
-model.compile(optimizer=Adam(lr=args.lr), loss="binary_crossentropy", metrics=["accuracy"])
+model.compile(optimizer=Adam(learning_rate=args.lr), loss="binary_crossentropy", metrics=["accuracy"])
 
 # Train the model. Since online augmentation is used, the steps_per_epoch specifies how many
 # batches should be processed before an epoch is considered complete.
-model.fit_generator(train_gen, 
-                    steps_per_epoch=args.steps,
-                    epochs=args.epochs,
-                    validation_data=val_gen,
-                    validation_steps=args.vals,
-                    callbacks=[tensorboard, model_checkpoint, es])
+model.fit(train_gen,
+          steps_per_epoch=args.steps,
+          epochs=args.epochs,
+          validation_data=val_gen,
+          validation_steps=args.vals,
+          callbacks=[tensorboard, model_checkpoint, es])
 
 # Once the model has been trained, use it to process the images in the test set and save
 # the results to the test/ directory.
